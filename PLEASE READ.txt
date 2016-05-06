@@ -1,0 +1,7 @@
+Hi there,
+
+The textures may not load in if the application is ran locally. Solutions to this issue can be found here https://github.com/mrdoob/three.js/wiki/How-to-run-things-locally.
+
+Alternatively, I have hosted this application on GitHub.io for ease of use.
+
+http://wlv1221442.github.io

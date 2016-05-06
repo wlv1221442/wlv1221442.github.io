@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 	<head>
-		<title>three.js webgl - orbit controls</title>
+		<title>solar system simulator</title>
 		<meta charset="utf-8">
 		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
 		<style>
@@ -34,7 +34,7 @@
 	<body>
 		<div id="container"></div>
 		<div id="info">
-			<a href="http://threejs.org" target="_blank">scroll to zoom | hit numbers 0-9 to select planets</a>
+			<a href="http://wlv1221442.github.io" target="_blank">scroll to zoom | hit numbers 0-9 to select planets</a>
 		</div>
 
 		<script src="source/space/three.js"></script>
@@ -62,43 +62,43 @@
             document.addEventListener("keydown", function(event) {
             var code = event.which || event.keyCode;
 
-            if (code == 49) {
+            if (code == 49) { //1
                 removeCamera()
                 newCamera()
             }
-            if (code == 50) {
+            if (code == 50) { //2
                 removeCamera()
                 mercury.add(camera)
             }
-            if (code == 51)  {
+            if (code == 51)  { //3
                 removeCamera()
                 venus.add(camera)
             }
-            if (code == 52) {
+            if (code == 52) { //4
                 removeCamera()
                 earth.add(camera)
             }
-            if (code == 53) {
+            if (code == 53) { //5
                 removeCamera()
                 mars.add(camera)
             }
-            if (code == 54) {
+            if (code == 54) { //6
                 removeCamera()
                 jupiter.add(camera)
             }
-            if (code == 55) {
+            if (code == 55) { //7
                 removeCamera()
                 saturn.add(camera)
             }
-            if (code == 56) {
+            if (code == 56) { //8
                 removeCamera()
                 uranus.add(camera)
             }
-            if (code == 57) {
+            if (code == 57) { //9
                 removeCamera()
                 neptune.add(camera)
             }            
-            if (code == 48) {
+            if (code == 48) { //0
                 removeCamera()
                 pluto.add(camera)
             }
@@ -124,16 +124,16 @@
                     planet.add(camera)
                 }
             }
-            
+            //draws the orbit line based on the orbit radius of the planet
             function drawOrbit(radius) {
                 var mat = new THREE.LineBasicMaterial({color : 0xffffff})
                 var geo = new THREE.CircleGeometry(radius,10240)
                 var line = new THREE.Line(geo,mat)
                 line.rotation.x=Math.PI/2;
-                geo.vertices.shift()
+                geo.vertices.shift()//remove inner part of circle
                 scene.add(line)
             }
-            
+            //removes all cameras added to planet objects
             function removeCamera() {
                 sun.remove(camera)
                 mercury.remove(camera)
@@ -146,14 +146,13 @@
                 neptune.remove(camera)
                 pluto.remove(camera)
             }
-            
+            //can be called to create a brand new camera, used for resetting camera back to initial orbit camera
             function newCamera() {
                 camera = new THREE.PerspectiveCamera( 60,window.innerWidth / window.innerHeight,1,1e6 );
 				camera.position.x = 500;
                 camera.position.y = 500;
                 camera.position.z = 1500;
 				controls = new THREE.OrbitControls( camera, renderer.domElement );
-				//controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
 				controls.enableDamping = true;
 				controls.dampingFactor = 0.25;
 				controls.enableZoom = true;
@@ -170,15 +169,7 @@
 				var container = document.getElementById( 'container' );
 				container.appendChild( renderer.domElement );
 
-				camera = new THREE.PerspectiveCamera( 60,window.innerWidth / window.innerHeight,1,1e6 );
-				camera.position.x = 500;
-                camera.position.y = 500;
-                camera.position.z = 1500;
-				controls = new THREE.OrbitControls( camera, renderer.domElement );
-				//controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
-				controls.enableDamping = true;
-				controls.dampingFactor = 0.25;
-				controls.enableZoom = true;
+				newCamera()
 
                 
 				// world
@@ -189,7 +180,8 @@
                 // light.position.set(5,5,5)
                 // light.target.position.set( 0, 0, 0 )
                 // scene.add( light )
-
+                
+                //light
                 var light	= new THREE.DirectionalLight( 0xcccccc, 1 )
                 light.position.set(5,5,5)
                 scene.add( light )
@@ -214,12 +206,12 @@
                 
                 
                 //sun glow
-                var o = new THREE.SphereGeometry(60,32,32)
                 var t = THREEx.createAtmosphereMaterial()
-                t.side = THREE.BackSide
-                t.uniforms.glowColor.value.set(16627731)
-                t.uniforms.coeficient.value = .3
+                var o = new THREE.SphereGeometry(60,32,32)
                 t.uniforms.power.value = 4
+                t.side = THREE.BackSide
+                t.uniforms.coeficient.value = .3
+                t.uniforms.glowColor.value.set(16627732)
                 var l = new THREE.Mesh(o,t)
                 l.scale.multiplyScalar(1)
                 scene.add(l)
@@ -232,13 +224,13 @@
                 
                 
                 //mercury
-                me = new THREE.Object3D()
-                scene.add(me)
+                me = new THREE.Object3D() //object for rotation
+                scene.add(me) // add object with no mesh to scene
                 mercury = THREEx.Planets.createMercury()
-                mercury.position.set(75,0,0)
-                mercury.scale.multiplyScalar(1*.383)
-                mercury.rotation.y=0;
-                me.add(mercury)
+                mercury.position.set(75,0,0) //ofset planet from rotational object to create orbit
+                mercury.scale.multiplyScalar(1*.383)//size compared to earth
+                mercury.rotation.y=0; //initialize planet rotation variable
+                me.add(mercury) //add planet to rotation object
                 drawOrbit(75)
                 
                 
@@ -374,7 +366,7 @@
 			function animate() {
 				requestAnimationFrame( animate );
 
-                sun.rotation.y += 0.00587;
+                sun.rotation.y += 0.00587; // real day cycles in number of hours, divided by 10000
                 mercury.rotation.y += 0.04222;
                 venus.rotation.y -= 0.02802;
                 earth.rotation.y += 0.00024;
@@ -388,7 +380,7 @@
                 neptune.rotation.y += 0.00016;
                 pluto.rotation.y += 0.000063;
                 
-                me.rotation.y += 0.0047;
+                me.rotation.y += 0.0047; //relative orbit speeds in km/s, divided by 10000
                 ve.rotation.y += 0.0035;
                 ea.rotation.y += 0.003;
                 eac.rotation.y += 0.003;
