@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - orbit controls</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				color: #000;
+				font-family:Monospace;
+				font-size:13px;
+				text-align:center;
+				font-weight: bold;
+
+				background-color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+
+			#info {
+				color:#000;
+				position: absolute;
+				top: 0px; width: 100%;
+				padding: 5px;
+
+			}
+
+			a {
+				color: red;
+			}
+		</style>
+	</head>
+
+	<body>
+		<div id="container"></div>
+		<div id="info">
+			<a href="http://threejs.org" target="_blank">scroll to zoom | hit numbers 0-9 to select planets</a>
+		</div>
+
+		<script src="space/three.js"></script>
+        <script src="space/three.min.js"></script>
+		<script src="space/OrbitControls.js"></script>
+		<script src="space/Detector.js"></script>
+		<script src="space/stats.min.js"></script>
+        <script src="space/dat.gui.min.js"></script>
+        <script src="planets/threex.planets.js"></script>
+		<script src="planets/threex.atmospherematerial.js"></script>
+
+		<script>
+
+			if ( ! Detector.webgl ) Detector.addGetWebGLMessage();
+
+			var stats;
+
+			var su, me, ve, ea, eac, ma, ju, sa, sar, ur, urr, ne, pl,
+            sun, mercury, venus, earth, eartcloud, mars, jupiter, saturn, saturnring, 
+            uranus, uranusring, neptune, pluto, camera, controls, scene, renderer;
+
+			init();
+			animate();
+            
+            document.addEventListener("keydown", function(event) {
+            var code = event.which || event.keyCode;
+
+            if (code == 49) {
+                removeCamera()
+                newCamera()
+            }
+            if (code == 50) {
+                removeCamera()
+                mercury.add(camera)
+            }
+            if (code == 51)  {
+                removeCamera()
+                venus.add(camera)
+            }
+            if (code == 52) {
+                removeCamera()
+                earth.add(camera)
+            }
+            if (code == 53) {
+                removeCamera()
+                mars.add(camera)
+            }
+            if (code == 54) {
+                removeCamera()
+                jupiter.add(camera)
+            }
+            if (code == 55) {
+                removeCamera()
+                saturn.add(camera)
+            }
+            if (code == 56) {
+                removeCamera()
+                uranus.add(camera)
+            }
+            if (code == 57) {
+                removeCamera()
+                neptune.add(camera)
+            }            
+            if (code == 48) {
+                removeCamera()
+                pluto.add(camera)
+            }
+            else console.log(code);
+            
+            event.preventDefault();
+            return false;
+          });
+            
+            window.onload = function() {
+                var choice = ChangeCamera()
+                var gui = new dat.GUI()
+                gui.add(text, 'Planet', ['sun','mercury','venus','earth','mars','jupiter','saturn','uranus','neptune','pluto'])
+            }
+            
+            var ChangeCamera = function() {
+                this.planet = sun
+                removeCamera()
+                if (planet == sun){
+                    newCamera()
+                }
+                else {
+                    planet.add(camera)
+                }
+            }
+            
+            function drawOrbit(radius) {
+                var mat = new THREE.LineBasicMaterial({color : 0xffffff})
+                var geo = new THREE.CircleGeometry(radius,10240)
+                var line = new THREE.Line(geo,mat)
+                line.rotation.x=Math.PI/2;
+                geo.vertices.shift()
+                scene.add(line)
+            }
+            
+            function removeCamera() {
+                sun.remove(camera)
+                mercury.remove(camera)
+                venus.remove(camera)
+                earth.remove(camera)
+                mars.remove(camera)   
+                jupiter.remove(camera)
+                saturn.remove(camera)
+                uranus.remove(camera)
+                neptune.remove(camera)
+                pluto.remove(camera)
+            }
+            
+            function newCamera() {
+                camera = new THREE.PerspectiveCamera( 60,window.innerWidth / window.innerHeight,1,1e6 );
+				camera.position.x = 500;
+                camera.position.y = 500;
+                camera.position.z = 1500;
+				controls = new THREE.OrbitControls( camera, renderer.domElement );
+				//controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
+				controls.enableDamping = true;
+				controls.dampingFactor = 0.25;
+				controls.enableZoom = true;
+            }
+            
+			function init() {
+
+				renderer = new THREE.WebGLRenderer({antialias	: true});;
+				scene = new THREE.Scene();
+
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+				var container = document.getElementById( 'container' );
+				container.appendChild( renderer.domElement );
+
+				camera = new THREE.PerspectiveCamera( 60,window.innerWidth / window.innerHeight,1,1e6 );
+				camera.position.x = 500;
+                camera.position.y = 500;
+                camera.position.z = 1500;
+				controls = new THREE.OrbitControls( camera, renderer.domElement );
+				//controls.addEventListener( 'change', render ); // add this only if there is no animation loop (requestAnimationFrame)
+				controls.enableDamping = true;
+				controls.dampingFactor = 0.25;
+				controls.enableZoom = true;
+
+                
+				// world
+                
+                var light	= new THREE.AmbientLight( 0x888888 )
+                scene.add( light )
+                // var light	= new THREE.DirectionalLight( 'white', 1)
+                // light.position.set(5,5,5)
+                // light.target.position.set( 0, 0, 0 )
+                // scene.add( light )
+
+                var light	= new THREE.DirectionalLight( 0xcccccc, 1 )
+                light.position.set(5,5,5)
+                scene.add( light )
+                light.castShadow	= true
+                light.shadowCameraNear	= 0.01
+                light.shadowCameraFar	= 15
+                light.shadowCameraFov	= 45
+                light.shadowCameraLeft	= -1
+                light.shadowCameraRight	=  1
+                light.shadowCameraTop	=  1
+                light.shadowCameraBottom= -1
+                // light.shadowCameraVisible	= true
+                light.shadowBias	= 0.001
+                light.shadowDarkness	= 0.2
+                light.shadowMapWidth	= 1024
+                light.shadowMapHeight	= 1024
+
+				/*
+                var ambient = new THREE.AmbientLight(0xffffff); 
+                scene.add(ambient);
+                */
+                
+                
+                //sun glow
+                var o = new THREE.SphereGeometry(60,32,32)
+                var t = THREEx.createAtmosphereMaterial()
+                t.side = THREE.BackSide
+                t.uniforms.glowColor.value.set(16627731)
+                t.uniforms.coeficient.value = .3
+                t.uniforms.power.value = 4
+                var l = new THREE.Mesh(o,t)
+                l.scale.multiplyScalar(1)
+                scene.add(l)
+                
+                //sun
+                sun	= THREEx.Planets.createSun();
+                sun.scale.multiplyScalar(100);
+                sun.rotation.y=0;
+                scene.add(sun);
+                
+                
+                //mercury
+                me = new THREE.Object3D()
+                scene.add(me)
+                mercury = THREEx.Planets.createMercury()
+                mercury.position.set(75,0,0)
+                mercury.scale.multiplyScalar(1*.383)
+                mercury.rotation.y=0;
+                me.add(mercury)
+                drawOrbit(75)
+                
+                
+                //venus
+                ve = new THREE.Object3D()
+                scene.add(ve)
+                venus = THREEx.Planets.createVenus()
+                venus.position.set(105,0,0)
+                venus.scale.multiplyScalar(1*.949)
+                venus.rotation.y=0;
+                ve.add(venus)
+                drawOrbit(105)
+                
+                //earth 
+                ea = new THREE.Object3D()
+                scene.add(ea)
+                earth = THREEx.Planets.createEarth()
+                earth.position.set(150,0,0)
+                earth.rotation.y=0;
+                ea.add(earth)
+                drawOrbit(150)
+                
+                //earthcloud
+                eac = new THREE.Object3D()
+                scene.add(eac)
+                earthcloud = THREEx.Planets.createEarthCloud()
+                earthcloud.position.set(150,0,0)
+                earthcloud.rotation.y=0;
+                eac.add(earthcloud)
+                drawOrbit(150)
+                
+                //mars
+                ma = new THREE.Object3D()
+                scene.add(ma)
+                mars = THREEx.Planets.createMars()
+                mars.position.set(200,0,0)
+                mars.scale.multiplyScalar(1*.532)
+                mars.rotation.y=0;
+                ma.add(mars)
+                drawOrbit(200)
+                
+                //jupiter
+                ju = new THREE.Object3D()
+                scene.add(ju)
+                jupiter = THREEx.Planets.createJupiter()
+                jupiter.scale.multiplyScalar(11.21)
+                jupiter.position.set(300,0,0)
+                jupiter.rotation.y=0;
+                ju.add(jupiter)
+                drawOrbit(300)
+                
+                //saturn
+                sa = new THREE.Object3D()
+                scene.add(sa)
+                saturn = THREEx.Planets.createSaturn()
+                saturn.scale.multiplyScalar(9.45)
+                saturn.position.set(500,0,0)
+                saturn.rotation.y=0;
+                sa.add(saturn)
+                drawOrbit(500)
+                
+                //saturnring
+                sar = new THREE.Object3D()
+                scene.add(sar)
+                saturnring = THREEx.Planets.createSaturnRing()
+                saturnring.scale.multiplyScalar(9.45)
+                saturnring.position.set(500,0,0)
+                saturnring.rotation.y=0;
+                sar.add(saturnring)
+                
+                //uranus
+                ur = new THREE.Object3D()
+                scene.add(ur)
+                uranus = THREEx.Planets.createUranus()
+                uranus.scale.multiplyScalar(4.01)
+                uranus.position.set(700,0,0)
+                uranus.rotation.y=0;
+                ur.add(uranus)
+                drawOrbit(700)
+                
+                //uranusring
+                urr = new THREE.Object3D()
+                scene.add(urr)
+                uranusring = THREEx.Planets.createUranusRing()
+                uranusring.scale.multiplyScalar(4.01)
+                uranusring.position.set(700,0,0)
+                uranusring.rotation.y=0;
+                urr.add(uranusring)
+                
+                //neptune
+                ne = new THREE.Object3D()
+                scene.add(ne)
+                neptune = THREEx.Planets.createNeptune()
+                neptune.scale.multiplyScalar(3.88)
+                neptune.position.set(800,0,0)
+                neptune.rotation.y=0;
+                ne.add(neptune)
+                drawOrbit(800)
+                
+                //Pluto
+                pl = new THREE.Object3D()
+                scene.add(pl)
+                pluto = THREEx.Planets.createPluto()
+                pluto.scale.multiplyScalar(1*.186)
+                pluto.position.set(900,0,0)
+                pluto.rotation.y=0;
+                pl.add(pluto)
+                drawOrbit(900)
+                
+                //stars
+                var starSphere	= THREEx.Planets.createStarfield()
+                starSphere.scale.multiplyScalar(20)
+                scene.add(starSphere)
+  
+                clock = new THREE.Clock();
+
+				stats = new Stats();
+				container.appendChild( stats.dom );
+
+				window.addEventListener( 'resize', onWindowResize, false );
+
+			}
+
+			function onWindowResize() {
+
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+
+				renderer.setSize( window.innerWidth, window.innerHeight );
+
+			}
+
+			function animate() {
+				requestAnimationFrame( animate );
+
+                sun.rotation.y += 0.00587;
+                mercury.rotation.y += 0.04222;
+                venus.rotation.y -= 0.02802;
+                earth.rotation.y += 0.00024;
+                earthcloud.rotation.y += 0.00024;
+                mars.rotation.y += 0.00024;
+                jupiter.rotation.y += 0.000099;
+                saturn.rotation.y += 0.000107;
+                saturnring.rotation.y += 0.000107;
+                uranus.rotation.y -= 0.000172;
+                uranusring.rotation.y -= 0.000172;
+                neptune.rotation.y += 0.00016;
+                pluto.rotation.y += 0.000063;
+                
+                me.rotation.y += 0.0047;
+                ve.rotation.y += 0.0035;
+                ea.rotation.y += 0.003;
+                eac.rotation.y += 0.003;
+                ma.rotation.y += 0.0024;
+                ju.rotation.y += 0.0013;
+                sa.rotation.y += 0.0009;
+                sar.rotation.y += 0.0009;
+                ur.rotation.y += 0.0007;
+                urr.rotation.y += 0.0007;
+                ne.rotation.y += 0.0005;
+                pl.rotation.y += 0.0004;
+                
+                
+				controls.update(); // required if controls.enableDamping = true, or if controls.autoRotate = true
+
+				stats.update();
+
+				render();
+
+			}
+
+			function render() {
+
+				renderer.render( scene, camera );
+
+			}
+
+		</script>
+
+	</body>
+</html>
